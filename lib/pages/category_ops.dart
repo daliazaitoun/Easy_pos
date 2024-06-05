@@ -1,11 +1,13 @@
 import 'package:easy_pos_r5/helpers/sql_helper.dart';
+import 'package:easy_pos_r5/models/category.dart';
 import 'package:easy_pos_r5/widgets/app_elevated_button.dart';
 import 'package:easy_pos_r5/widgets/app_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class CategoriesOpsPage extends StatefulWidget {
-  const CategoriesOpsPage({super.key});
+  final CategoryData? categoryData;
+  const CategoriesOpsPage({this.categoryData, super.key});
 
   @override
   State<CategoriesOpsPage> createState() => _CategoriesOpsPageState();
@@ -13,13 +15,22 @@ class CategoriesOpsPage extends StatefulWidget {
 
 class _CategoriesOpsPageState extends State<CategoriesOpsPage> {
   var formKey = GlobalKey<FormState>();
-  var nameController = TextEditingController();
-  var descriptionController = TextEditingController();
+  TextEditingController? nameController;
+  TextEditingController? descriptionController;
+
+  @override
+  void initState() {
+    nameController = TextEditingController(text: widget.categoryData?.name);
+    descriptionController =
+        TextEditingController(text: widget.categoryData?.description);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add New'),
+        title: Text(widget.categoryData != null ? 'Update' : 'Add New'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -28,7 +39,7 @@ class _CategoriesOpsPageState extends State<CategoriesOpsPage> {
             child: Column(
               children: [
                 AppTextFormField(
-                    controller: nameController,
+                    controller: nameController!,
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Name is required';
@@ -40,7 +51,7 @@ class _CategoriesOpsPageState extends State<CategoriesOpsPage> {
                   height: 20,
                 ),
                 AppTextFormField(
-                    controller: descriptionController,
+                    controller: descriptionController!,
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Description is required';
@@ -67,10 +78,23 @@ class _CategoriesOpsPageState extends State<CategoriesOpsPage> {
     try {
       if (formKey.currentState!.validate()) {
         var sqlHelper = GetIt.I.get<SqlHelper>();
-        await sqlHelper.db!.insert('categories', {
-          'name': nameController.text,
-          'description': descriptionController.text
-        });
+        if (widget.categoryData != null) {
+          // update logic
+          await sqlHelper.db!.update(
+              'categories',
+              {
+                'name': nameController?.text,
+                'description': descriptionController?.text
+              },
+              where: 'id =?',
+              whereArgs: [widget.categoryData?.id]);
+        } else {
+          await sqlHelper.db!.insert('categories', {
+            'name': nameController?.text,
+            'description': descriptionController?.text
+          });
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             backgroundColor: Colors.green,
             content: Text('Category Saved Successfully')));
