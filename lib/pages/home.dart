@@ -1,6 +1,8 @@
 import 'package:easy_pos_r5/helpers/sql_helper.dart';
+import 'package:easy_pos_r5/pages/all_sales.dart';
 import 'package:easy_pos_r5/pages/categories.dart';
 import 'package:easy_pos_r5/pages/products.dart';
+import 'package:easy_pos_r5/pages/sale_op.page.dart';
 import 'package:easy_pos_r5/widgets/grid_view_item.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +34,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: () async {}),
       drawer: Container(),
       appBar: AppBar(),
       body: Column(
@@ -103,7 +104,10 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.orange,
                   iconData: Icons.calculate,
                   label: 'All Sales',
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (_) => AllSales()));
+                  },
                 ),
                 GridViewItem(
                   color: Colors.pink,
@@ -124,7 +128,10 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.green,
                   iconData: Icons.point_of_sale,
                   label: 'New Sale',
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => SaleOpsPage()));
+                  },
                 ),
                 GridViewItem(
                   color: Colors.yellow,
