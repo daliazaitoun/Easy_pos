@@ -15,6 +15,7 @@ class ProductsPage extends StatefulWidget {
 
 class _ProductsPageState extends State<ProductsPage> {
   List<Product>? products;
+  bool sortValue = true;
   @override
   void initState() {
     getProducts();
@@ -92,13 +93,30 @@ class _ProductsPageState extends State<ProductsPage> {
             ),
             Expanded(
                 child: AppTable(
+                    sortColumnIndex: 4,
+                    sortAscending: sortValue,
                     minWidth: 1300,
-                    columns: const [
+                    columns:  [
                       DataColumn(label: Text('Id')),
                       DataColumn(label: Text('Name')),
                       DataColumn(label: Text('Description')),
                       DataColumn(label: Text('Price')),
-                      DataColumn(label: Text('Stock')),
+                      DataColumn(
+                        numeric: true,
+                        label: Text('Stock'),
+                        onSort: (index, isAscending) {
+                           sortValue = isAscending;
+                            if (sortValue == false) {
+                              products!.sort((a, b) =>
+                                  a.stock!.compareTo(b.stock!));
+                            } else {
+                              products!.sort((a, b) =>
+                                  b.stock!.compareTo(a.stock!));
+                            }
+                            setState(() {});
+                          }
+                      
+                      ),
                       DataColumn(label: Text('isAvaliable')),
                       DataColumn(label: Center(child: Text('image'))),
                       DataColumn(label: Text('categoryId')),

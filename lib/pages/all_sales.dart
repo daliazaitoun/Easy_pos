@@ -14,6 +14,7 @@ class AllSales extends StatefulWidget {
 
 class _AllSalesState extends State<AllSales> {
   List<Order>? orders;
+  bool sortValue = true;
   @override
   void initState() {
     getOrders();
@@ -29,7 +30,6 @@ class _AllSalesState extends State<AllSales> {
       inner join clients C
       where O.clientId = C.id
       """);
-      
 
       if (data.isNotEmpty) {
         orders = [];
@@ -80,11 +80,26 @@ class _AllSalesState extends State<AllSales> {
             ),
             Expanded(
                 child: AppTable(
+                    sortColumnIndex: 2,
+                    sortAscending: sortValue,
                     minWidth: 1100,
-                    columns: const [
+                    columns: [
                       DataColumn(label: Text('Id')),
                       DataColumn(label: Text('Label')),
-                      DataColumn(label: Text('Total Price')),
+                      DataColumn(
+                          numeric: true,
+                          label: Text('Total Price'),
+                          onSort: (index, isAscending) {
+                            sortValue = isAscending;
+                            if (sortValue == false) {
+                              orders!.sort((a, b) =>
+                                  a.totalPrice!.compareTo(b.totalPrice!));
+                            } else {
+                              orders!.sort((a, b) =>
+                                  b.totalPrice!.compareTo(a.totalPrice!));
+                            }
+                            setState(() {});
+                          }),
                       DataColumn(label: Text('Discount')),
                       DataColumn(label: Text('Client Name')),
                       DataColumn(label: Text('Client phone')),

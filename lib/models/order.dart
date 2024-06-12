@@ -9,6 +9,9 @@ class Order {
   String? clientPhone;
   String? clientAddress;
 
+  Order(this.id, this.label, this.totalPrice, this.discount, this.date,
+      this.clientId, this.clientName, this.clientPhone, this.clientAddress);
+
   Order.fromJson(Map<String, dynamic> data) {
     id = data["id"];
     label = data["label"];
@@ -27,7 +30,7 @@ class Order {
       "label": label,
       "totalPrice": totalPrice,
       "discount": discount,
-       "date": date, 
+      "date": date,
       "clientId": clientId,
     };
   }

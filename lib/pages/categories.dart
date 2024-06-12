@@ -15,6 +15,8 @@ class CategoriesPage extends StatefulWidget {
 
 class _CategoriesPageState extends State<CategoriesPage> {
   List<CategoryData>? categories;
+    bool sortValue = true;
+
   @override
   void initState() {
     getCategories();
@@ -88,9 +90,22 @@ class _CategoriesPageState extends State<CategoriesPage> {
             ),
             Expanded(
                 child: AppTable(
-                    columns: const [
+                   sortColumnIndex: 1,
+                    sortAscending: sortValue,
+                    columns:  [
                   DataColumn(label: Text('Id')),
-                  DataColumn(label: Text('Name')),
+                  DataColumn(label: Text('Name'),
+                          onSort: <String>(index, isAscending) {
+                            sortValue = isAscending;
+                            if (sortValue == false) {
+                              categories!
+                                  .sort((a, b) => a.name!.compareTo(b.name!));
+                            } else {
+                              categories!
+                                  .sort((a, b) => b.name!.compareTo(a.name!));
+                            }
+                            setState(() {});
+                          }),
                   DataColumn(label: Text('Description')),
                   DataColumn(label: Center(child: Text('Actions'))),
                 ],

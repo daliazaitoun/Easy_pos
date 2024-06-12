@@ -5,10 +5,19 @@ class AppTable extends StatelessWidget {
   final List<DataColumn> columns;
   final DataTableSource source;
   final double minWidth;
+  final int? sortColumnIndex;
+  final bool sortAscending;
+ // final  IconData sortArrowIcon;
+
   const AppTable(
       {required this.columns,
       required this.source,
       this.minWidth = 600,
+      this.sortColumnIndex,
+      this.sortAscending = true,
+     // this.sortArrowIcon = Icons.arrow_upward,
+      
+    
       super.key});
 
   @override
@@ -17,6 +26,9 @@ class AppTable extends StatelessWidget {
         empty: const Center(
           child: Text('No Data Found'),
         ),
+        sortColumnIndex: sortColumnIndex,
+        sortAscending: sortAscending,
+       // sortArrowIcon: sortArrowIcon, 
         renderEmptyRowsInTheEnd: false,
         isHorizontalScrollBarVisible: true,
         minWidth: minWidth,

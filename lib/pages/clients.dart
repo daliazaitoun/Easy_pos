@@ -14,7 +14,8 @@ class ClientsPage extends StatefulWidget {
 }
 
 class _ClientsPageState extends State<ClientsPage> {
-  List<ClientData>? Clients;
+  List<ClientData>? clients;
+  bool sortValue = true;
   @override
   void initState() {
     getClients();
@@ -27,16 +28,16 @@ class _ClientsPageState extends State<ClientsPage> {
       var data = await sqlHelper.db!.query('clients');
 
       if (data.isNotEmpty) {
-        Clients = [];
+        clients = [];
         for (var item in data) {
-          Clients!.add(ClientData.fromJson(item));
+          clients!.add(ClientData.fromJson(item));
         }
       } else {
-        Clients = [];
+        clients = [];
       }
     } catch (e) {
       print('Error In get client $e');
-      Clients = [];
+      clients = [];
     }
     setState(() {});
   }
@@ -88,17 +89,31 @@ class _ClientsPageState extends State<ClientsPage> {
             ),
             Expanded(
                 child: AppTable(
+            
+                  sortColumnIndex: 1,
+                    sortAscending: sortValue,
                     minWidth: 1100,
-                    columns: const [
+                    columns:  [
                       DataColumn(label: Text('Id')),
-                      DataColumn(label: Text('Name')),
+                      DataColumn(label: Text('Name'),
+                      onSort: <String>  (index, isAscending){
+                            sortValue = isAscending;
+                            if (sortValue == false) {
+                              clients!.sort((a, b) =>
+                                  a.name!.compareTo(b.name!));
+                            } else {
+                              clients!.sort((a, b) =>
+                                  b.name!.compareTo(a.name!));
+                            }
+                            setState(() {});
+                          }),
                       DataColumn(label: Text('email')),
                       DataColumn(label: Text('phone')),
                       DataColumn(label: Text('address')),
                       DataColumn(label: Center(child: Text('Actions'))),
                     ],
                     source: ClientsTableSource(
-                      ClientsEx: Clients,
+                      ClientsEx: clients,
                       onUpdate: (ClientData) async {
                         var result = await Navigator.push(
                             context,
