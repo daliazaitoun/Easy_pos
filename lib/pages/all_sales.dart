@@ -24,11 +24,12 @@ class _AllSalesState extends State<AllSales> {
     try {
       var sqlHelper = GetIt.I.get<SqlHelper>();
       var data = await sqlHelper.db!.rawQuery("""
-      select O.* ,C.name as clientName,C.phone as clientPhone,C.address as clientAddress 
+      select O.* ,C.name as clientName,C.phone as clientPhone,C.address as clientAddress
       from orders O
       inner join clients C
       where O.clientId = C.id
       """);
+      
 
       if (data.isNotEmpty) {
         orders = [];

@@ -51,7 +51,16 @@ class _SaleOpsPageState extends State<SaleOpsPage> {
     super.dispose();
   }
 
-  
+  String? _validatePercentage(String? value) {
+    final n = num.tryParse(value!);
+    if (n == null) {
+      return 'Please enter a valid number';
+    }
+    if (n < 0 || n > 100) {
+      return 'Percentage must be between 0 and 100';
+    }
+    return null;
+  }
 
   void getProducts() async {
     try {
@@ -176,19 +185,20 @@ class _SaleOpsPageState extends State<SaleOpsPage> {
                                   label: 'Discount',
                                   suffixText: '%',
                                   validator: (value) {
-                               
+                                    return _validatePercentage(value);
                                   },
                                   keyboardType: TextInputType.number,
                                 ),
                               ),
-                              const SizedBox(width: 10,),
+                              const SizedBox(
+                                width: 10,
+                              ),
                               Expanded(
                                 child: AppElevatedButton(
                                     onPressed: () {
-                                      setState(() {
-                                        
-                                      });
-                                    }, label: "Apply Discount"),
+                                      setState(() {});
+                                    },
+                                    label: "Apply Discount"),
                               )
                             ],
                           ),
@@ -207,9 +217,6 @@ class _SaleOpsPageState extends State<SaleOpsPage> {
                             fontSize: 16,
                           ),
                         ),
-                        // Text(
-                        //   "${ calculateTotalPrice * double.parse(discountController!.text)/ 100}"
-                        // ),
                         Text(
                           '  Net Price : $netPrice ',
                           style: TextStyle(
@@ -228,7 +235,6 @@ class _SaleOpsPageState extends State<SaleOpsPage> {
                           ? null
                           : () async {
                               await onSetOrder();
-                             
                             },
                       label: 'Add Order'),
                 )
