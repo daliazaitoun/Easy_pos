@@ -1,14 +1,18 @@
 import 'package:easy_pos_r5/helpers/sql_helper.dart';
+import 'package:easy_pos_r5/models/client.dart';
 import 'package:easy_pos_r5/models/order.dart';
 import 'package:easy_pos_r5/models/order_item.dart';
 import 'package:easy_pos_r5/models/products.dart';
 import 'package:easy_pos_r5/widgets/app_elevated_button.dart';
+import 'package:easy_pos_r5/widgets/app_text_form_field.dart';
+import 'package:easy_pos_r5/widgets/clients_drop_down.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class SaleOpsPage extends StatefulWidget {
   final Order? order;
-  const SaleOpsPage({this.order, super.key});
+  final ClientData? client;
+  const SaleOpsPage({this.order, this.client, super.key});
 
   @override
   State<SaleOpsPage> createState() => _SaleOpsPageState();
@@ -16,8 +20,12 @@ class SaleOpsPage extends StatefulWidget {
 
 class _SaleOpsPageState extends State<SaleOpsPage> {
   String? orderLabel;
+  String? date;
   List<Product>? products;
   List<OrderItem> selectedOrderItem = [];
+  int? selectedClientId;
+  var formKey = GlobalKey<FormState>();
+  TextEditingController? discountController;
 
   @override
   void initState() {
@@ -30,7 +38,20 @@ class _SaleOpsPageState extends State<SaleOpsPage> {
         ? '#OR${DateTime.now().millisecondsSinceEpoch}'
         : widget.order?.id.toString();
     getProducts();
+    selectedClientId = widget.client?.id;
+
+    discountController =
+        TextEditingController(text: '${widget.order?.discount ?? ""}');
+    setState(() {});
   }
+
+  @override
+  void dispose() {
+    discountController?.dispose();
+    super.dispose();
+  }
+
+  
 
   void getProducts() async {
     try {
@@ -65,99 +86,154 @@ class _SaleOpsPageState extends State<SaleOpsPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Label : $orderLabel',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Container(
-                          color: Colors.red,
-                          child: Text('TODO: add client drop down here')),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        children: [
-                          IconButton(
-                              onPressed: () {
-                                onAddProductClicked();
-                              },
-                              icon: Icon(Icons.add)),
-                          Text(
-                            'Add Products',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
-                            ),
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Order Items',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                        ),
-                      ),
-                      for (var orderItem in selectedOrderItem)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          child: ListTile(
-                            leading:
-                                Image.network(orderItem.product?.image ?? ''),
-                            title: Text(
-                                '${orderItem.product?.name ?? ''},${orderItem.productCount}X'),
-                            trailing: Text(
-                                '${(orderItem.productCount ?? 0) * (orderItem.product?.price ?? 0)}'),
+        child: Form(
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Label : $orderLabel',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
                           ),
                         ),
-                      Container(
-                        color: Colors.red,
-                        child: Text('TODO: add discount textfield'),
-                      ),
-                      Text(
-                        'Total Price : $calculateTotalPrice',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
+                        const SizedBox(
+                          height: 20,
                         ),
-                      )
-                    ],
+                        ClientsDropDown(
+                          selectedValue: selectedClientId,
+                          onChanged: (clientId) {
+                            setState(() {
+                              selectedClientId = clientId;
+                            });
+                          },
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          children: [
+                            IconButton(
+                                onPressed: () {
+                                  onAddProductClicked();
+                                },
+                                icon: Icon(Icons.add)),
+                            Text(
+                              'Add Products',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              AppElevatedButton(
-                  onPressed: selectedOrderItem.isEmpty
-                      ? null
-                      : () async {
-                          await onSetOrder();
-                        },
-                  label: 'Add Order')
-            ],
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Order Items',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
+                        ),
+                        for (var orderItem in selectedOrderItem)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                            child: ListTile(
+                              leading:
+                                  Image.network(orderItem.product?.image ?? ''),
+                              title: Text(
+                                  '${orderItem.product?.name ?? ''},${orderItem.productCount}X'),
+                              trailing: Text(
+                                  '${(orderItem.productCount ?? 0) * (orderItem.product?.price ?? 0)}'),
+                            ),
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: AppTextFormField(
+                                  controller: discountController!,
+                                  label: 'Discount',
+                                  suffixText: '%',
+                                  validator: (value) {
+                               
+                                  },
+                                  keyboardType: TextInputType.number,
+                                ),
+                              ),
+                              const SizedBox(width: 10,),
+                              Expanded(
+                                child: AppElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        
+                                      });
+                                    }, label: "Apply Discount"),
+                              )
+                            ],
+                          ),
+                        ),
+                        Text(
+                          '  Total Price : $calculateTotalPrice',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          '  Discount :  ${discountController!.text}%',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
+                        ),
+                        // Text(
+                        //   "${ calculateTotalPrice * double.parse(discountController!.text)/ 100}"
+                        // ),
+                        Text(
+                          '  Net Price : $netPrice ',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: AppElevatedButton(
+                      onPressed: selectedOrderItem.isEmpty
+                          ? null
+                          : () async {
+                              await onSetOrder();
+                             
+                            },
+                      label: 'Add Order'),
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -166,30 +242,51 @@ class _SaleOpsPageState extends State<SaleOpsPage> {
 
   Future<void> onSetOrder() async {
     try {
-      var sqlHelper = GetIt.I.get<SqlHelper>();
+      if (formKey.currentState!.validate()) {
+        var sqlHelper = GetIt.I.get<SqlHelper>();
+        if (widget.order != null) {
+          await sqlHelper.db!.update(
+              'orders',
+              {
+                'clientId': selectedClientId,
+                'totalPrice': calculateTotalPrice,
+                'date': DateTime.now().toIso8601String(),
+                'discount': discountController?.text,
+              },
+              where: 'id =?',
+              whereArgs: [widget.order?.id]);
+          var batch = sqlHelper.db!.batch();
+          for (var orderItem in selectedOrderItem) {
+            batch.update('orderProductItems', {
+              'productId': orderItem.productId,
+              'productCount': orderItem.productCount ?? 0,
+            });
+          }
+        } else {
+          var orderId = await sqlHelper.db!.insert('orders', {
+            'label': orderLabel,
+            'totalPrice': calculateTotalPrice,
+            'discount': discountController?.text,
+            'date': DateTime.now().toIso8601String(),
+            'clientId': selectedClientId
+          });
 
-      var orderId = await sqlHelper.db!.insert('orders', {
-        'label': orderLabel,
-        'totalPrice': calculateTotalPrice,
-        'discount': 0,
-        'clientId': 1
-      });
+          var batch = sqlHelper.db!.batch();
+          for (var orderItem in selectedOrderItem) {
+            batch.insert('orderProductItems', {
+              'orderId': orderId,
+              'productId': orderItem.productId,
+              'productCount': orderItem.productCount ?? 0,
+            });
+          }
 
-      var batch = sqlHelper.db!.batch();
-      for (var orderItem in selectedOrderItem) {
-        batch.insert('orderProductItems', {
-          'orderId': orderId,
-          'productId': orderItem.productId,
-          'productCount': orderItem.productCount ?? 0,
-        });
+          await batch.commit();
+        }
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Order Set Successfully')));
+        Navigator.pop(context, true);
       }
-
-      await batch.commit();
-
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: Colors.green,
-          content: Text('Order Set Successfully')));
-      Navigator.pop(context, true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: Colors.red,
@@ -203,6 +300,15 @@ class _SaleOpsPageState extends State<SaleOpsPage> {
     for (var orderItem in selectedOrderItem) {
       total = total +
           ((orderItem.productCount ?? 0) * (orderItem.product?.price ?? 0));
+    }
+
+    return total;
+  }
+
+  double get netPrice {
+    double total = calculateTotalPrice;
+    if (discountController!.text.isNotEmpty) {
+      total = total - (total * double.parse(discountController!.text) / 100);
     }
 
     return total;
@@ -323,7 +429,7 @@ class _SaleOpsPageState extends State<SaleOpsPage> {
                           ),
                           AppElevatedButton(
                               onPressed: () {
-                                Navigator.pop(context);
+                                Navigator.pop(context, true);
                               },
                               label: 'Back')
                         ],

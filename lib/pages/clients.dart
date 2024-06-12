@@ -1,48 +1,42 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:easy_pos_r5/helpers/sql_helper.dart';
-import 'package:easy_pos_r5/models/products.dart';
-import 'package:easy_pos_r5/pages/operations/products_ops.dart';
+import 'package:easy_pos_r5/models/client.dart';
+import 'package:easy_pos_r5/pages/operations/client_ops.dart';
 import 'package:easy_pos_r5/widgets/app_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class ProductsPage extends StatefulWidget {
-  const ProductsPage({super.key});
+class ClientsPage extends StatefulWidget {
+  const ClientsPage({super.key});
 
   @override
-  State<ProductsPage> createState() => _ProductsPageState();
+  State<ClientsPage> createState() => _ClientsPageState();
 }
 
-class _ProductsPageState extends State<ProductsPage> {
-  List<Product>? products;
+class _ClientsPageState extends State<ClientsPage> {
+  List<ClientData>? Clients;
   @override
   void initState() {
-    getProducts();
+    getClients();
     super.initState();
   }
 
-  void getProducts() async {
+  void getClients() async {
     try {
       var sqlHelper = GetIt.I.get<SqlHelper>();
-      var data = await sqlHelper.db!.rawQuery("""
-      select P.* ,C.name as categoryName,C.description as categoryDesc 
-      from products P
-      inner join categories C
-      where P.categoryId = C.id
-      ORDER BY price DESC;       
-      """); // sort by price
+      var data = await sqlHelper.db!.query('clients');
 
       if (data.isNotEmpty) {
-        products = [];
+        Clients = [];
         for (var item in data) {
-          products!.add(Product.fromJson(item));
+          Clients!.add(ClientData.fromJson(item));
         }
       } else {
-        products = [];
+        Clients = [];
       }
     } catch (e) {
-      print('Error In get data $e');
-      products = [];
+      print('Error In get client $e');
+      Clients = [];
     }
     setState(() {});
   }
@@ -51,14 +45,14 @@ class _ProductsPageState extends State<ProductsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Products'),
+        title: const Text('Clients'),
         actions: [
           IconButton(
               onPressed: () async {
                 var result = await Navigator.push(context,
-                    MaterialPageRoute(builder: (ctx) => ProductOpsPage()));
+                    MaterialPageRoute(builder: (ctx) => ClientsOpsPage()));
                 if (result ?? false) {
-                  getProducts();
+                  getClients();
                 }
               },
               icon: const Icon(Icons.add))
@@ -71,10 +65,12 @@ class _ProductsPageState extends State<ProductsPage> {
             TextField(
               onChanged: (value) async {
                 var sqlHelper = GetIt.I.get<SqlHelper>();
-                await sqlHelper.db!.rawQuery("""
-        SELECT * FROM products
-        WHERE name LIKE '%$value%' OR description LIKE '%$value% OR price LIKE '%$value%';
+                var result = await sqlHelper.db!.rawQuery("""
+        SELECT * FROM clients
+        WHERE name LIKE '%$value%' OR email LIKE '%$value%';
           """);
+
+                print('values:${result}');
               },
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.search),
@@ -92,35 +88,30 @@ class _ProductsPageState extends State<ProductsPage> {
             ),
             Expanded(
                 child: AppTable(
-                    minWidth: 1300,
+                    minWidth: 1100,
                     columns: const [
                       DataColumn(label: Text('Id')),
                       DataColumn(label: Text('Name')),
-                      DataColumn(label: Text('Description')),
-                      DataColumn(label: Text('Price')),
-                      DataColumn(label: Text('Stock')),
-                      DataColumn(label: Text('isAvaliable')),
-                      DataColumn(label: Center(child: Text('image'))),
-                      DataColumn(label: Text('categoryId')),
-                      DataColumn(label: Text('categoryName')),
-                      DataColumn(label: Text('categoryDesc')),
+                      DataColumn(label: Text('email')),
+                      DataColumn(label: Text('phone')),
+                      DataColumn(label: Text('address')),
                       DataColumn(label: Center(child: Text('Actions'))),
                     ],
-                    source: ProductsSource(
-                      productsEx: products,
-                      onUpdate: (productData) async {
+                    source: ClientsTableSource(
+                      ClientsEx: Clients,
+                      onUpdate: (ClientData) async {
                         var result = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (ctx) => ProductOpsPage(
-                                      product: productData,
+                                builder: (ctx) => ClientsOpsPage(
+                                      clientData: ClientData,
                                     )));
                         if (result ?? false) {
-                          getProducts();
+                          getClients();
                         }
                       },
-                      onDelete: (productData) {
-                        onDeleteRow(productData.id!);
+                      onDelete: (ClientData) {
+                        onDeleteRow(ClientData.id!);
                       },
                     ))),
           ],
@@ -135,9 +126,9 @@ class _ProductsPageState extends State<ProductsPage> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: const Text('Delete Product'),
+              title: const Text('Delete Client'),
               content:
-                  const Text('Are you sure you want to delete this product?'),
+                  const Text('Are you sure you want to delete this Client?'),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -158,59 +149,49 @@ class _ProductsPageState extends State<ProductsPage> {
       if (dialogResult ?? false) {
         var sqlHelper = GetIt.I.get<SqlHelper>();
         var result = await sqlHelper.db!.delete(
-          'products',
+          'clients',
           where: 'id =?',
           whereArgs: [id],
         );
         if (result > 0) {
-          getProducts();
+          getClients();
         }
       }
     } catch (e) {
-      print('Error In delete data $e');
+      print('Error In delete client $e');
     }
   }
 }
 
-class ProductsSource extends DataTableSource {
-  List<Product>? productsEx;
+class ClientsTableSource extends DataTableSource {
+  List<ClientData>? ClientsEx;
 
-  void Function(Product) onUpdate;
-  void Function(Product) onDelete;
-  ProductsSource(
-      {required this.productsEx,
+  void Function(ClientData) onUpdate;
+  void Function(ClientData) onDelete;
+  ClientsTableSource(
+      {required this.ClientsEx,
       required this.onUpdate,
       required this.onDelete});
 
   @override
   DataRow? getRow(int index) {
     return DataRow2(cells: [
-      DataCell(Text('${productsEx?[index].id}')),
-      DataCell(Text('${productsEx?[index].name}')),
-      DataCell(Text('${productsEx?[index].description}')),
-      DataCell(Text('${productsEx?[index].price}')),
-      DataCell(Text('${productsEx?[index].stock}')),
-      DataCell(Text('${productsEx?[index].isAvaliable}')),
-      DataCell(Center(
-        child: Image.network(
-          '${productsEx?[index].image}',
-          fit: BoxFit.contain,
-        ),
-      )),
-      DataCell(Text('${productsEx?[index].categoryId}')),
-      DataCell(Text('${productsEx?[index].categoryName}')),
-      DataCell(Text('${productsEx?[index].categoryDesc}')),
+      DataCell(Text('${ClientsEx?[index].id}')),
+      DataCell(Text('${ClientsEx?[index].name}')),
+      DataCell(Text('${ClientsEx?[index].email}')),
+      DataCell(Text('${ClientsEx?[index].phone}')),
+      DataCell(Text('${ClientsEx?[index].address}')),
       DataCell(Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconButton(
               onPressed: () {
-                onUpdate(productsEx![index]);
+                onUpdate(ClientsEx![index]);
               },
               icon: const Icon(Icons.edit)),
           IconButton(
               onPressed: () {
-                onDelete(productsEx![index]);
+                onDelete(ClientsEx![index]);
               },
               icon: const Icon(
                 Icons.delete,
@@ -225,7 +206,7 @@ class ProductsSource extends DataTableSource {
   bool get isRowCountApproximate => false;
 
   @override
-  int get rowCount => productsEx?.length ?? 0;
+  int get rowCount => ClientsEx?.length ?? 0;
 
   @override
   int get selectedRowCount => 0;

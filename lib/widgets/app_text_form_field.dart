@@ -7,12 +7,14 @@ class AppTextFormField extends StatelessWidget {
   final String label;
   final List<TextInputFormatter>? formatters;
   final TextInputType? keyboardType;
+  final String? suffixText;
   const AppTextFormField(
       {required this.controller,
       required this.validator,
       required this.label,
       this.formatters,
       this.keyboardType,
+      this.suffixText,
       super.key});
 
   @override
@@ -20,9 +22,11 @@ class AppTextFormField extends StatelessWidget {
     return TextFormField(
       inputFormatters: formatters,
       keyboardType: keyboardType,
+    
       controller: controller,
       validator: validator,
       decoration: InputDecoration(
+        suffixText: suffixText,
         labelText: label,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(5)),

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:get_it/get_it.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
@@ -73,6 +74,7 @@ class SqlHelper {
           label text,
           totalPrice real,
           discount real,
+          date TEXT,
           clientId integer not null,
           foreign key(clientId) references clients(id)
           on delete restrict
@@ -87,6 +89,15 @@ class SqlHelper {
           on delete restrict
           ) 
           """);
+      batch.execute("""
+       CREATE TABLE if not exists exchange_rates (
+        id INTEGER PRIMARY KEY,
+        from_currency TEXT,
+        to_currency TEXT
+       
+        
+      )
+          """);
 
       var result = await batch.commit();
       print('resuts $result');
@@ -95,5 +106,14 @@ class SqlHelper {
       print('Error in creating table: $e');
       return false;
     }
+  }
+  Future<double> getTotalSalesForToday() async {
+     var sqlHelper = GetIt.I.get<SqlHelper>();
+    String today = DateTime.now().toIso8601String().split('T').first;
+    List<Map<String, dynamic>> result = await db!.rawQuery('''
+      SELECT SUM(totalPrice) as total_sales FROM orders WHERE date LIKE '$today%'
+    ''');
+    double totalSales = result.first['total_sales'] ?? 0.0;
+    return totalSales;
   }
 }
