@@ -8,6 +8,7 @@ class AppTextFormField extends StatelessWidget {
   final List<TextInputFormatter>? formatters;
   final TextInputType? keyboardType;
   final String? suffixText;
+  final TextInputAction? textInputAction;
   const AppTextFormField(
       {required this.controller,
       required this.validator,
@@ -15,11 +16,14 @@ class AppTextFormField extends StatelessWidget {
       this.formatters,
       this.keyboardType,
       this.suffixText,
+      this.textInputAction,
+    
       super.key});
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      textInputAction: textInputAction,
       inputFormatters: formatters,
       keyboardType: keyboardType,
     

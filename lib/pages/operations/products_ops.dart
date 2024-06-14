@@ -48,6 +48,15 @@ class _ProductOpsPageState extends State<ProductOpsPage> {
     selectedCategoryId = widget.product?.categoryId;
     setState(() {});
   }
+    @override
+  void dispose() {
+    nameController!.dispose();
+    descriptionController!.dispose();
+    imageController!.dispose();
+    priceController!.dispose();
+    stockController!.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

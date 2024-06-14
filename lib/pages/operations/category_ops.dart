@@ -27,6 +27,13 @@ class _CategoriesOpsPageState extends State<CategoriesOpsPage> {
   }
 
   @override
+  void dispose() {
+    nameController!.dispose();
+    descriptionController!.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -39,6 +46,7 @@ class _CategoriesOpsPageState extends State<CategoriesOpsPage> {
             child: Column(
               children: [
                 AppTextFormField(
+                    textInputAction: TextInputAction.next,
                     controller: nameController!,
                     validator: (value) {
                       if (value!.isEmpty) {
@@ -106,5 +114,4 @@ class _CategoriesOpsPageState extends State<CategoriesOpsPage> {
           content: Text('Error In Create Category : $e')));
     }
   }
-
 }
