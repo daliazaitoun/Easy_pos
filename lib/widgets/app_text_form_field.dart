@@ -8,6 +8,7 @@ class AppTextFormField extends StatelessWidget {
   final List<TextInputFormatter>? formatters;
   final TextInputType? keyboardType;
   final String? suffixText;
+  final int? maxLength;
   final TextInputAction? textInputAction;
   const AppTextFormField(
       {required this.controller,
@@ -17,7 +18,7 @@ class AppTextFormField extends StatelessWidget {
       this.keyboardType,
       this.suffixText,
       this.textInputAction,
-    
+      this.maxLength,
       super.key});
 
   @override
@@ -25,8 +26,8 @@ class AppTextFormField extends StatelessWidget {
     return TextFormField(
       textInputAction: textInputAction,
       inputFormatters: formatters,
+      maxLength: maxLength,
       keyboardType: keyboardType,
-    
       controller: controller,
       validator: validator,
       decoration: InputDecoration(

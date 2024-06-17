@@ -62,8 +62,31 @@ class _ProductsPageState extends State<ProductsPage> {
                   getProducts();
                 }
               },
-              icon: const Icon(Icons.add))
+              icon: const Icon(Icons.add)),
+        
+         IconButton(
+          onPressed: () async {
+            //1st option
+            var sqlHelper = GetIt.I.get<SqlHelper>();
+            var data = await sqlHelper.db!.rawQuery("""
+                    select stock
+                    from products
+                    where stock < 100;
+                """);
+            print(data);
+            //2nd option
+            Iterable<Product> filteredProduct =
+                products!.where((num) => (num.stock! < 100));
+            filteredProduct.forEach((num) => print(num.stock));
+
+            setState(() {});
+          },
+          icon: Icon(Icons.filter_alt),
+        ),
         ],
+       
+       
+      
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),

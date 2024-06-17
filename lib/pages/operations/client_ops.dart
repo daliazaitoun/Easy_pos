@@ -3,6 +3,7 @@ import 'package:easy_pos_r5/models/client.dart';
 import 'package:easy_pos_r5/widgets/app_elevated_button.dart';
 import 'package:easy_pos_r5/widgets/app_text_form_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
 class ClientsOpsPage extends StatefulWidget {
@@ -52,6 +53,7 @@ class _ClientsOpsPageState extends State<ClientsOpsPage> {
             child: Column(
               children: [
                 AppTextFormField(
+                    textInputAction: TextInputAction.next,
                     controller: nameController!,
                     validator: (value) {
                       if (value!.isEmpty) {
@@ -64,7 +66,9 @@ class _ClientsOpsPageState extends State<ClientsOpsPage> {
                   height: 20,
                 ),
                 AppTextFormField(
+                  keyboardType: TextInputType.emailAddress,
                     controller: emailController!,
+                    textInputAction: TextInputAction.next,
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'email is required';
@@ -76,6 +80,9 @@ class _ClientsOpsPageState extends State<ClientsOpsPage> {
                   height: 20,
                 ),
                 AppTextFormField(
+                keyboardType: TextInputType.number,
+                  maxLength: 11,
+                    textInputAction: TextInputAction.next,
                     controller: phoneController!,
                     validator: (value) {
                       if (value!.isEmpty) {
@@ -88,6 +95,7 @@ class _ClientsOpsPageState extends State<ClientsOpsPage> {
                   height: 20,
                 ),
                 AppTextFormField(
+                    textInputAction: TextInputAction.done,
                     controller: addressController!,
                     validator: (value) {
                       if (value!.isEmpty) {

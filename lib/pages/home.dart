@@ -81,20 +81,35 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: ()async {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => HomePage(),
-          //   ),
-          // );
-     
-     
-        },
-        
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            UserAccountsDrawerHeader(
+               currentAccountPicture: CircleAvatar(),
+              accountName: Text("Hello user"),
+              accountEmail: Text("user@gmail.com"),
+             
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text("Home"),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.backup),
+              title: Text("Back up"),
+              onTap: () {},
+            ),
+             ListTile(
+              leading: Icon(Icons.logout),
+              title: Text("Logout"),
+              textColor: Colors.red,
+              iconColor:  Colors.red,
+              onTap: () {},
+            )
+          ],
+        ),
       ),
-      drawer: Container(),
       appBar: AppBar(),
       body: Column(
         children: [

@@ -49,9 +49,27 @@ class _AllSalesState extends State<AllSales> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('All Sales'),
-      ),
+      appBar: AppBar(title: Text('All Sales'), actions: [
+        IconButton(
+          onPressed: () async {
+            //1st option
+            var sqlHelper = GetIt.I.get<SqlHelper>();
+            var data = await sqlHelper.db!.rawQuery("""
+                    select totalPrice
+                    from orders
+                    where totalPrice > 55;
+                """);
+            print(data);
+            //2nd option
+            Iterable<Order> filteredOrders =
+                orders!.where((order) => order.clientName!.contains("hmed"));
+            filteredOrders.forEach((order) => print(order.clientName));
+
+            setState(() {});
+          },
+          icon: Icon(Icons.filter_alt),
+        ),
+      ]),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -62,7 +80,10 @@ class _AllSalesState extends State<AllSales> {
                 await sqlHelper.db!.rawQuery("""
         SELECT * FROM orders
         WHERE label LIKE '%$value%';
+         WHERE clientName LIKE '%$value%';
+
           """);
+                setState(() {});
               },
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.search),
@@ -132,7 +153,7 @@ class OrderDataSource extends DataTableSource {
       DataCell(Text('${ordersEx?[index].id}')),
       DataCell(Text('${ordersEx?[index].label}')),
       DataCell(Text('${ordersEx?[index].totalPrice}')),
-      DataCell(Text('${ordersEx?[index].discount}')),
+      DataCell(Text('${ordersEx![index].discount! / 100}')),
       DataCell(Text('${ordersEx?[index].clientName}')),
       DataCell(Text('${ordersEx?[index].clientPhone}')),
       DataCell(Text('${ordersEx?[index].clientAddress}')),

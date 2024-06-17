@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Easy Pos',
       theme: ThemeData(
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
             backgroundColor: Color(0xff0157db), foregroundColor: Colors.white),
         colorScheme: ColorScheme.fromSwatch(
             errorColor: Colors.red,

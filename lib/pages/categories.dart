@@ -15,7 +15,7 @@ class CategoriesPage extends StatefulWidget {
 
 class _CategoriesPageState extends State<CategoriesPage> {
   List<CategoryData>? categories;
-    bool sortValue = true;
+  bool sortValue = true;
 
   @override
   void initState() {
@@ -57,7 +57,26 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   getCategories();
                 }
               },
-              icon: const Icon(Icons.add))
+              icon: const Icon(Icons.add)),
+                            IconButton(
+            onPressed: () async {
+                     //1st option
+              var sqlHelper = GetIt.I.get<SqlHelper>();
+              var data = await sqlHelper.db!.rawQuery("""
+                    select name
+                    from Categories
+                    where name LIKE "%Bread%";
+                """);
+              print(data);
+              //2nd option
+              Iterable<CategoryData> filteredCategories =
+                  categories!.where((category) => category.description!.contains("sandwich"));
+              filteredCategories.forEach((category) => print(category.description));
+
+              setState(() {});
+            },
+            icon: Icon(Icons.filter_alt),
+          ),
         ],
       ),
       body: Padding(
@@ -71,7 +90,14 @@ class _CategoriesPageState extends State<CategoriesPage> {
         SELECT * FROM Categories
         WHERE name LIKE '%$value%' OR description LIKE '%$value%';
           """);
-
+                // setState(() {
+                //   CategoriesTableSource(
+                //           categoriesEx: categories,
+                //           onUpdate: (CategoryData) {},
+                //           onDelete: (CategoryData) {})
+                //       .searchData(result);
+                  
+                // });
                 print('values:${result}');
               },
               decoration: const InputDecoration(
@@ -90,11 +116,12 @@ class _CategoriesPageState extends State<CategoriesPage> {
             ),
             Expanded(
                 child: AppTable(
-                   sortColumnIndex: 1,
+                    sortColumnIndex: 1,
                     sortAscending: sortValue,
-                    columns:  [
-                  DataColumn(label: Text('Id')),
-                  DataColumn(label: Text('Name'),
+                    columns: [
+                      DataColumn(label: Text('Id')),
+                      DataColumn(
+                          label: Text('Name'),
                           onSort: <String>(index, isAscending) {
                             sortValue = isAscending;
                             if (sortValue == false) {
@@ -106,9 +133,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
                             }
                             setState(() {});
                           }),
-                  DataColumn(label: Text('Description')),
-                  DataColumn(label: Center(child: Text('Actions'))),
-                ],
+                      DataColumn(label: Text('Description')),
+                      DataColumn(label: Center(child: Text('Actions'))),
+                    ],
                     source: CategoriesTableSource(
                       categoriesEx: categories,
                       onUpdate: (categoryData) async {
@@ -184,6 +211,14 @@ class CategoriesTableSource extends DataTableSource {
       {required this.categoriesEx,
       required this.onUpdate,
       required this.onDelete});
+
+  void searchData(List<Map<String, dynamic>> newData) {
+    categoriesEx = [];
+    for (var item in newData) {
+      categoriesEx!.add(CategoryData.fromJson(item));
+    }
+    notifyListeners();
+  }
 
   @override
   DataRow? getRow(int index) {

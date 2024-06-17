@@ -108,7 +108,7 @@ class SqlHelper {
     }
   }
   Future<double> getTotalSalesForToday() async {
-     var sqlHelper = GetIt.I.get<SqlHelper>();
+     GetIt.I.get<SqlHelper>();
     String today = DateTime.now().toIso8601String().split('T').first;
     List<Map<String, dynamic>> result = await db!.rawQuery('''
       SELECT SUM(totalPrice) as total_sales FROM orders WHERE date LIKE '$today%'

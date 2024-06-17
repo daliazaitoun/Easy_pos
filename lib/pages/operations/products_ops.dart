@@ -48,7 +48,8 @@ class _ProductOpsPageState extends State<ProductOpsPage> {
     selectedCategoryId = widget.product?.categoryId;
     setState(() {});
   }
-    @override
+
+  @override
   void dispose() {
     nameController!.dispose();
     descriptionController!.dispose();
@@ -72,6 +73,7 @@ class _ProductOpsPageState extends State<ProductOpsPage> {
               child: Column(
                 children: [
                   AppTextFormField(
+                    textInputAction:TextInputAction.next,
                       controller: nameController!,
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -84,6 +86,7 @@ class _ProductOpsPageState extends State<ProductOpsPage> {
                     height: 20,
                   ),
                   AppTextFormField(
+                    textInputAction: TextInputAction.next,
                       controller: descriptionController!,
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -99,6 +102,7 @@ class _ProductOpsPageState extends State<ProductOpsPage> {
                     children: [
                       Expanded(
                         child: AppTextFormField(
+                          textInputAction: TextInputAction.next,
                             controller: priceController!,
                             keyboardType: TextInputType.number,
                             formatters: [
@@ -118,6 +122,7 @@ class _ProductOpsPageState extends State<ProductOpsPage> {
                       Expanded(
                         child: AppTextFormField(
                             keyboardType: TextInputType.number,
+                            textInputAction: TextInputAction.next,
                             formatters: [
                               FilteringTextInputFormatter.digitsOnly
                             ],
@@ -136,6 +141,7 @@ class _ProductOpsPageState extends State<ProductOpsPage> {
                     height: 20,
                   ),
                   AppTextFormField(
+                    textInputAction: TextInputAction.done,
                       controller: imageController!,
                       validator: (value) {
                         if (value!.isEmpty) {

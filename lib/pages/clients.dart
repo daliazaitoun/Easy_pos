@@ -56,7 +56,28 @@ class _ClientsPageState extends State<ClientsPage> {
                   getClients();
                 }
               },
-              icon: const Icon(Icons.add))
+              icon: const Icon(Icons.add)),
+               IconButton(
+            onPressed: () async {
+              
+              
+               //1st option
+              var sqlHelper = GetIt.I.get<SqlHelper>();
+              var data = await sqlHelper.db!.rawQuery("""
+                    SELECT name
+                    FROM clients
+                    where name LIKE '%a%';
+                """);
+              print(data);
+              //2nd option
+        Iterable<ClientData> filteredClients =
+                  clients!.where((client) => client.email!.contains("@yahoo"));
+              filteredClients.forEach((client) => print(client.email));
+            
+              setState(() {});
+            },
+            icon: Icon(Icons.filter_alt),
+          ),
         ],
       ),
       body: Padding(
