@@ -1,7 +1,7 @@
 import 'package:easy_pos_r5/helpers/sql_helper.dart';
 import 'package:easy_pos_r5/models/exchange.dart';
-
 import 'package:easy_pos_r5/pages/all_sales.dart';
+import 'package:easy_pos_r5/pages/backup.dart';
 import 'package:easy_pos_r5/pages/categories.dart';
 import 'package:easy_pos_r5/pages/clients.dart';
 import 'package:easy_pos_r5/pages/products.dart';
@@ -10,6 +10,7 @@ import 'package:easy_pos_r5/widgets/grid_view_item.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:sqflite/sqflite.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,7 +23,6 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = true;
   bool isTableIntilized = false;
   List<ExchangeData>? exchangeRate;
-
   var totalSales;
 
   @override
@@ -39,7 +39,6 @@ class _HomePageState extends State<HomePage> {
     _getTotalSalesForToday();
     setState(() {});
   }
-  // need to modify
 
   Future<double> _getTotalSalesForToday() async {
     var sqlHelper = GetIt.I.get<SqlHelper>();
@@ -85,10 +84,9 @@ class _HomePageState extends State<HomePage> {
         child: ListView(
           children: [
             UserAccountsDrawerHeader(
-               currentAccountPicture: CircleAvatar(),
+              currentAccountPicture: CircleAvatar(),
               accountName: Text("Hello user"),
               accountEmail: Text("user@gmail.com"),
-             
             ),
             ListTile(
               leading: Icon(Icons.home),
@@ -96,15 +94,21 @@ class _HomePageState extends State<HomePage> {
               onTap: () {},
             ),
             ListTile(
-              leading: Icon(Icons.backup),
-              title: Text("Back up"),
-              onTap: () {},
-            ),
-             ListTile(
+                leading: Icon(Icons.backup),
+                title: Text("Back up"),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Backup(),
+                    ),
+                  );
+                }),
+            ListTile(
               leading: Icon(Icons.logout),
               title: Text("Logout"),
               textColor: Colors.red,
-              iconColor:  Colors.red,
+              iconColor: Colors.red,
               onTap: () {},
             )
           ],

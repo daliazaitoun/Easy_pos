@@ -36,7 +36,7 @@ class _SaleOpsPageState extends State<SaleOpsPage> {
   void initPage() {
     orderLabel = widget.order == null
         ? '#OR${DateTime.now().millisecondsSinceEpoch}'
-        : widget.order?.id.toString();
+        : widget.order?.label;
     getProducts();
     selectedClientId = widget.client?.id;
 
@@ -129,22 +129,39 @@ class _SaleOpsPageState extends State<SaleOpsPage> {
                         const SizedBox(
                           height: 20,
                         ),
-                        Row(
-                          children: [
-                            IconButton(
-                                onPressed: () {
-                                  onAddProductClicked();
-                                },
-                                icon: Icon(Icons.add)),
-                            Text(
-                              'Add Products',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
+                        widget.order != null
+                            ? Row(
+                                children: [
+                                  IconButton(
+                                      onPressed: () {
+                                        onAddProductClicked();
+                                      },
+                                      icon: Icon(Icons.update)),
+                                  Text(
+                                    ' Update Products',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 16,
+                                    ),
+                                  )
+                                ],
+                              )
+                            : Row(
+                                children: [
+                                  IconButton(
+                                      onPressed: () {
+                                        onAddProductClicked();
+                                      },
+                                      icon: Icon(Icons.add)),
+                                  Text(
+                                    'Add Products',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 16,
+                                    ),
+                                  )
+                                ],
                               ),
-                            )
-                          ],
-                        ),
                       ],
                     ),
                   ),
@@ -236,7 +253,7 @@ class _SaleOpsPageState extends State<SaleOpsPage> {
                           : () async {
                               await onSetOrder();
                             },
-                      label: 'Add Order'),
+                      label: widget.order != null ? "Update" : 'Add Order'),
                 )
               ],
             ),

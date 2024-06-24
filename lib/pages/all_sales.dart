@@ -1,6 +1,7 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:easy_pos_r5/helpers/sql_helper.dart';
 import 'package:easy_pos_r5/models/order.dart';
+import 'package:easy_pos_r5/pages/operations/sale_op.page.dart';
 import 'package:easy_pos_r5/widgets/app_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -55,14 +56,14 @@ class _AllSalesState extends State<AllSales> {
             //1st option
             var sqlHelper = GetIt.I.get<SqlHelper>();
             var data = await sqlHelper.db!.rawQuery("""
-                    select totalPrice
+                   select totalPrice
                     from orders
-                    where totalPrice > 55;
+                    where totalPrice > 200;
                 """);
             print(data);
             //2nd option
             Iterable<Order> filteredOrders =
-                orders!.where((order) => order.clientName!.contains("hmed"));
+                orders!.where((order) => order.clientName!.contains("ahmed"));
             filteredOrders.forEach((order) => print(order.clientName));
 
             setState(() {});
@@ -129,15 +130,70 @@ class _AllSalesState extends State<AllSales> {
                     ],
                     source: OrderDataSource(
                       ordersEx: orders,
-                      onDelete: (order) {},
-                      onShow: (order) {},
+                      onDelete: (order) {
+                        onDeleteRow(order.id!);
+                      },
+                      onShow: (order) async {
+                        var result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (ctx) => SaleOpsPage(
+                                      order: order,
+                                    )));
+                        if (result ?? false) {
+                          getOrders();
+                        }
+                      },
                     ))),
           ],
         ),
       ),
     );
   }
+    Future<void> onDeleteRow(int id) async {
+    try {
+      var dialogResult = await showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Delete Order'),
+              content:
+                  const Text('Are you sure you want to delete this order?'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  },
+                  child: const Text('Delete'),
+                ),
+              ],
+            );
+          });
+
+      if (dialogResult ?? false) {
+        var sqlHelper = GetIt.I.get<SqlHelper>();
+        var result = await sqlHelper.db!.delete(
+          'orders',
+          where: 'id =?',
+          whereArgs: [id],
+        );
+        if (result > 0) {
+          getOrders();
+        }
+      }
+    } catch (e) {
+      print('Error In delete data $e');
+    }
+  }
 }
+
+
 
 class OrderDataSource extends DataTableSource {
   List<Order>? ordersEx;
